@@ -21,4 +21,10 @@ router.get('/', async (req, res) => {
     res.render('books/books', { columnNames, books, title: 'Books' });
 });
 
+// Get books/new
+// The create new book form
+router.get('/new', async (req, res) => {
+    res.render('books/new-book', { book: {}, title: 'New Book' });
+});
+
 module.exports = router;
