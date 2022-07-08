@@ -1,4 +1,5 @@
 var express = require('express');
+const createHttpError = require('http-errors');
 var router = express.Router();
 const Book = require('../models').Book;
 
@@ -51,6 +52,40 @@ router.post('/', asyncHandler( async (req, res) => {
             res.render('books/new-book', { book, errors: error.errors, title: "New Book" });
         } else {
             next(error);
+        }
+    }
+}));
+
+// Get books/:id
+// Shows book details form
+router.get('/:id', asyncHandler( async (req, res, next) => {
+    const book = await Book.findByPk(req.params.id);
+    if (book) {
+        res.render('books/update-book', { book, title: "Update Book" });
+    } else {
+        next(createHttpError(404));
+    }
+}));
+
+// Post books/:id
+// Updates book info in database
+router.post('/:id', asyncHandler( async (req, res, next) => {
+    let book;
+    try {
+        book = await Book.findByPk(req.params.id);
+        if (book) {
+            await book.update(req.body);
+            res.redirect('/');
+        } else {
+            next(createHttpError(404));
+        }
+    } catch (error) {
+        if (error.name === "SequelizeValidationError") {
+            book = await Book.build(req.body);
+            book.id = req.params.id;
+            res.render('books/update-book', { book, errors: error.errors, title: "New Book" });
+        } else {
+            throw error;
         }
     }
 }));
