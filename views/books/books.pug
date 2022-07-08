@@ -1,0 +1,18 @@
+extends ../layout
+
+block content
+    h1= title
+    p
+        a(href="/books/new", class="button") Create New Book
+    table
+        thead
+            each columnName of columnNames
+                th= columnName
+        tbody
+            each book in books
+                tr
+                    td
+                        a(href="/books" + book.id) #{book.title}
+                    td= book.author
+                    td= book.genre
+                    td= book.year
