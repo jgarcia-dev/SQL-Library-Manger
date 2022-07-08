@@ -41,15 +41,23 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Global error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  let resStatus, errType, message, view;
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  if (err.status === 404) {
+    resStatus = err.status;
+    errType = 'Page Not Found'
+    message = "Sorry! We couldn't find the page you were looking for.";
+    view = 'page-not-found';
+  } else {
+    resStatus = 500;
+    errType = 'Server Error';
+    message = 'Sorry! There was an unexpected error on the server.';
+    view = 'error';
+  }
+
+  res.status(resStatus).render(view, { errType, message });
 });
 
 module.exports = app;
