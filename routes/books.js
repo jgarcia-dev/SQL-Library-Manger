@@ -56,6 +56,46 @@ router.post('/new', asyncHandler( async (req, res, next) => {
     }
 }));
 
+// Get books/page
+// Gets list of books using pagination
+router.get('/page/:page', asyncHandler( async (req, res, next) => {
+    const attributes = ['id', 'title', 'author', 'genre', 'year'];
+    const columnNames = ['Title', 'Author', 'Genre', 'Year'];
+    const page = req.params.page;
+    
+    // test that page is valid number
+    if ( !Number.isNaN(page) && page > 0 ) {
+        // valid page number
+
+        const resultsPerPage = 5;
+        const books = await Book.findAndCountAll({
+            limit: resultsPerPage,
+            offset: (page - 1) * resultsPerPage,
+            attributes: attributes
+        });
+
+        if (books.rows.length > 0) {
+            // books found
+
+            // generate page numbers
+            const totalPages = Math.ceil(books.count / resultsPerPage);
+            let pageNumbers = [];
+            for (var i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+
+            res.render('books/books-page', { title: `Books - Page ${page}`, columnNames, books, pageNumbers });
+
+        } else {
+            // no books found
+            next(createHttpError(404));
+        }
+    } else {
+        // not valid page number
+        next(createHttpError(404));
+    }
+}));
+
 // Get books/:id
 // Shows book details form
 router.get('/:id', asyncHandler( async (req, res, next) => {
