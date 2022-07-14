@@ -4,6 +4,7 @@ block content
     h1= title
     p
         a(href="/books/new", class="button") Create New Book
+    h2= location
     table
         thead
             each columnName of columnNames
@@ -18,6 +19,9 @@ block content
                     td= book.year
     br
     p
-        each pageNumber of pageNumbers
-            a(href="/books/page/" + pageNumber) &nbsp; #{pageNumber} &nbsp;
+        - var i = 1
+        while i <= pagesFound
+            a(href="/books/page/" + i ) #{i} &nbsp;
+            - i++
+        
 

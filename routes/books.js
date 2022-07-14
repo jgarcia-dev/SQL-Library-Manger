@@ -57,7 +57,7 @@ router.post('/new', asyncHandler( async (req, res, next) => {
 }));
 
 // Get books/page
-// Gets list of books using pagination
+// Gets full list of books using pagination
 router.get('/page/:page', asyncHandler( async (req, res, next) => {
     const attributes = ['id', 'title', 'author', 'genre', 'year'];
     const columnNames = ['Title', 'Author', 'Genre', 'Year'];
@@ -71,21 +71,14 @@ router.get('/page/:page', asyncHandler( async (req, res, next) => {
         const books = await Book.findAndCountAll({
             limit: resultsPerPage,
             offset: (page - 1) * resultsPerPage,
-            attributes: attributes
+            attributes: attributes,
+            order: [['createdAt', 'DESC']]
         });
 
         if (books.rows.length > 0) {
             // books found
-
-            // generate page numbers
-            const totalPages = Math.ceil(books.count / resultsPerPage);
-            let pageNumbers = [];
-            for (var i = 1; i <= totalPages; i++) {
-                pageNumbers.push(i);
-            }
-
-            res.render('books/books-page', { title: `Books - Page ${page}`, columnNames, books, pageNumbers });
-
+            const pagesFound = Math.ceil(books.count / resultsPerPage);
+            res.render('books/books-page', { title: "Books", location: `Page ${page}`, columnNames, books, pagesFound });
         } else {
             // no books found
             next(createHttpError(404));
