@@ -4,7 +4,19 @@ block content
     h1= title
     p
         a(href="/books/new", class="button") Create New Book
+
+    h2 Search
+
+    form(action="#", method="get")
+        p
+            label(for="search") Search by title, author, genre, or year.
+            br
+            input(type="search" name="search" id="search" value=searchQuery)
+            br
+            input(type="submit" value="Search" class="search-btn")
+    
     h2= location
+    
     table
         thead
             each columnName of columnNames
