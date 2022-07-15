@@ -2,6 +2,7 @@ var express = require('express');
 const createHttpError = require('http-errors');
 var router = express.Router();
 const Book = require('../models').Book;
+const { Op } = require('sequelize');
 
 // Async handler function that wraps each route
 function asyncHandler(callBack) {
@@ -87,6 +88,34 @@ router.get('/page/:page', asyncHandler( async (req, res, next) => {
         // not valid page number
         next(createHttpError(404));
     }
+}));
+
+// Get books/results/:page
+// Get paginated books based on search query
+router.get('/results/:page', asyncHandler( async(req, res) => {
+    const attributes = ['id', 'title', 'author', 'genre', 'year'];
+    const columnNames = ['Title', 'Author', 'Genre', 'Year'];
+    const page = req.params.page;
+    const searchQuery = req.query.search;
+    const resultsPerPage = 5;
+    
+    const books = await Book.findAndCountAll({
+        attributes: attributes,
+        where: {
+            [Op.or]: [
+                { title: { [Op.like]: `%${searchQuery}%`} },
+                { author: { [Op.like]: `%${searchQuery}%`} },
+                { genre:  { [Op.like]: `%${searchQuery}%`} },
+                { year: { [Op.like]: `%${searchQuery}%`} }
+            ]
+        },
+        offset: (page - 1) * resultsPerPage,
+        limit: resultsPerPage,
+    });
+
+    const pagesFound = Math.ceil(books.count / resultsPerPage);
+
+    res.render('books/search-results', { title: "Search Results", searchQuery, location: `Page ${page}`, columnNames, books, pagesFound });
 }));
 
 // Get books/:id

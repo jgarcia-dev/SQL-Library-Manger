@@ -15,7 +15,7 @@ block content
             br
             input(type="submit" value="Search" class="search-btn")
     
-    h2= location
+    h2= `"${searchQuery}" search results - ${location}` 
     
     table
         thead
@@ -33,5 +33,5 @@ block content
     p
         - var i = 1
         while i <= pagesFound
-            a(href="/books/page/" + i ) #{i} &nbsp;
+            a(href="/books/results/" + i + "?search=" + searchQuery) #{i} &nbsp;
             - i++
