@@ -1,3 +1,4 @@
+const e = require('express');
 var express = require('express');
 const createHttpError = require('http-errors');
 var router = express.Router();
@@ -96,26 +97,38 @@ router.get('/results/:page', asyncHandler( async(req, res) => {
     const attributes = ['id', 'title', 'author', 'genre', 'year'];
     const columnNames = ['Title', 'Author', 'Genre', 'Year'];
     const page = req.params.page;
-    const searchQuery = req.query.search;
+    const searchQuery = req.query.search.trim();
     const resultsPerPage = 5;
-    
-    const books = await Book.findAndCountAll({
-        attributes: attributes,
-        where: {
-            [Op.or]: [
-                { title: { [Op.like]: `%${searchQuery}%`} },
-                { author: { [Op.like]: `%${searchQuery}%`} },
-                { genre:  { [Op.like]: `%${searchQuery}%`} },
-                { year: { [Op.like]: `%${searchQuery}%`} }
-            ]
-        },
-        offset: (page - 1) * resultsPerPage,
-        limit: resultsPerPage,
-    });
+    let books;
+    let pagesFound;
 
-    const pagesFound = Math.ceil(books.count / resultsPerPage);
-
-    res.render('books/search-results', { title: "Search Results", searchQuery, location: `Page ${page}`, columnNames, books, pagesFound });
+    if (searchQuery) {
+        books = await Book.findAndCountAll({
+            attributes: attributes,
+            where: {
+                [Op.or]: [
+                    { title: { [Op.like]: `%${searchQuery}%`} },
+                    { author: { [Op.like]: `%${searchQuery}%`} },
+                    { genre:  { [Op.like]: `%${searchQuery}%`} },
+                    { year: { [Op.like]: `%${searchQuery}%`} }
+                ]
+            },
+            offset: (page - 1) * resultsPerPage,
+            limit: resultsPerPage,
+        });
+        
+        if (books.rows.length > 0) {
+            // books found
+            pagesFound = Math.ceil(books.count / resultsPerPage); 
+            res.render('books/search-results', { title: "Search Results", searchQuery, location: `Page ${page}`, columnNames, books, pagesFound });
+        } else {
+            // no books found
+            res.render('books/search-results', { title: "Search Results", errorMsg: "No results found, try another search."});
+        }
+    } else {
+        // empty search query
+        res.render('books/search-results', { title: "Search Results", errorMsg: "Please enter a valid search term."});
+    }
 }));
 
 // Get books/:id
