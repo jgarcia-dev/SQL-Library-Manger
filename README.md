@@ -1,6 +1,4 @@
 # SQL Library Manger
- A wep application to manage a book database.
-
 
 ## Description
 
