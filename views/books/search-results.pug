@@ -8,7 +8,7 @@ block content
     h2 Search
 
     if (errorMsg)
-        h2.error Oooops!
+        h3.error Oooops!
         p.error.message= errorMsg
 
     form(action="/books/results/1", method="get")
@@ -36,7 +36,8 @@ block content
                         td= book.year
         br
         p
-            - var i = 1
+            - var i = 1;
+            span Pages &nbsp;
             while i <= pagesFound
                 a(href="/books/results/" + i + "?search=" + searchQuery) #{i} &nbsp;
                 - i++

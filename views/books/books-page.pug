@@ -31,7 +31,8 @@ block content
                     td= book.year
     br
     p
-        - var i = 1
+        - var i = 1;
+        span Pages &nbsp;
         while i <= pagesFound
             a(href="/books/page/" + i ) #{i} &nbsp;
             - i++
